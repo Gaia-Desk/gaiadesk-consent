@@ -60,6 +60,31 @@ async function getHelp() {
 }
 ```
 
+## Linux
+
+- **X11 (and XWayland):** the native library has its own consent dialog from libgaiadesk_embed
+  **0.4.0**; the Tauri plugin's `consent()` shows it.
+- **Wayland-only, or for an in-app look on any OS:** mount `<gaiadesk-consent>` (or
+  `<GaiaDeskConsent>`) with the plugin's `consentBridge`. When the native dialog cannot show, the
+  library's `consent()` resolves `{ decision: "unavailable" }`: that is your cue to mount the
+  element, so you never need your own `askConsent` card.
+- **Tested on WebKitGTK:** CI runs the element headless in Playwright's webkit on Ubuntu (the engine
+  Tauri's Linux webview, WebKitGTK, is built on) and in chromium: accept, decline, timeout, Esc,
+  Enter, the focus trap and the posted receipt's shape (`test/browser.test.ts`).
+
+```ts
+import '@gaiadesk/consent';
+import { consent, consentBridge } from '@gaiadesk/tauri-plugin-support';
+
+let d = await consent({ company: 'Acme' });             // the native dialog where there is one
+if (d.decision === 'unavailable') {                       // Wayland-only: the element instead
+  const el = document.body.appendChild(document.createElement('gaiadesk-consent'));
+  el.bridge = consentBridge;
+  d = await el.open({ company: 'Acme' });
+  el.remove();
+}
+```
+
 ## Electron (30 seconds)
 
 The bridge comes from `@gaiadesk/embed-native` **0.4.0** (its next release), for the main /
@@ -84,20 +109,44 @@ if (d.decision === 'accepted') await (window as any).acme.startHelp(d);
 
 ## React
 
-```tsx
-import { GaiaDeskConsent } from '@gaiadesk/consent/react';
+`<GaiaDeskConsent>` wraps the element: every option is the `options` prop, every event a callback.
+Copy-paste (Tauri shown; any bridge works):
 
-<GaiaDeskConsent
-  open={asking}                        // true shows it; false takes it down without a decision
-  options={{ company: 'Acme', guided: true }}
-  bridge={consentBridge}
-  onShown={(d) => track('consent_shown', d)}
-  onAccepted={({ choices }) => track('consent_accepted', choices)}
-  onDeclined={({ reason }) => track('consent_declined', reason)}  // "declined" | "timeout"
-  onDecision={(d) => { setAsking(false); if (d.decision === 'accepted') start(d); }}
-  onError={(e) => console.error(e.code, e.message)}
-/>
+```tsx
+import { useState } from 'react';
+import { GaiaDeskConsent } from '@gaiadesk/consent/react';
+import { consentBridge, startHelp } from '@gaiadesk/tauri-plugin-support';
+
+export function GetHelp() {
+  const [asking, setAsking] = useState(false);
+  return (
+    <>
+      <button onClick={() => setAsking(true)}>Get help</button>
+      <GaiaDeskConsent
+        open={asking}                        // true shows it; false takes it down without a decision
+        options={{ company: 'Acme', guided: true, timeout_seconds: 60 }}
+        bridge={consentBridge}
+        onShown={(d) => track('consent_shown', d)}                       // { locale, wording_version }
+        onAccepted={({ choices }) => track('consent_accepted', choices)}
+        onDeclined={({ reason }) => track('consent_declined', reason)}   // "declined" | "timeout"
+        onDecision={async (d) => {                                       // { decision, choices, consent_token?, receipt }
+          setAsking(false);
+          if (d.decision === 'accepted') await startHelp({ consentToken: d.consent_token, consentReceipt: d.receipt });
+        }}
+        onError={(e) => { setAsking(false); console.error(e.code, e.message); }}
+      />
+    </>
+  );
+}
 ```
+
+- Props: `open`, `options` (the element's options, below), `bridge`, and the callbacks `onShown`,
+  `onAccepted`, `onDeclined`, `onDecision` (the bridge's decision with its receipt) and `onError`
+  (a `ConsentError`; not called when `open` turns false). The latest callbacks are always used.
+- Options are read when `open` turns true; to change them, close and open again.
+- Unmounting, or `open={false}`, takes the dialog down; nothing is recorded.
+- SSR-safe: importing it on the server (Next.js, Remix) does nothing and renders a bare
+  `<gaiadesk-consent>`; the element registers itself in the browser.
 
 ## The element
 

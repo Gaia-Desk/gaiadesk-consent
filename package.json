@@ -43,8 +43,9 @@
     "build:test": "tsc -p tsconfig.test.json",
     "typecheck": "npm run gen && tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
     "clean": "node -e \"for (const d of ['dist', 'dist-test']) require('node:fs').rmSync(d, { recursive: true, force: true })\"",
-    "test": "npm run clean && npm run build && npm run build:test && node --test --test-timeout=20000 dist-test/locales.test.js dist-test/options.test.js dist-test/wording.test.js dist-test/element.test.js dist-test/web-bridge.test.js dist-test/react.test.js",
-    "prepack": "npm run clean && npm run build"
+    "test": "npm run clean && npm run build && npm run build:test && node --test --test-timeout=20000 dist-test/locales.test.js dist-test/options.test.js dist-test/wording.test.js dist-test/element.test.js dist-test/web-bridge.test.js dist-test/react.test.js dist-test/ssr.test.js",
+    "prepack": "npm run clean && npm run build",
+    "test:browser": "npm run clean && npm run build && npm run build:test && node --test --test-timeout=60000 dist-test/browser.test.js"
   },
   "peerDependencies": {
     "react": ">=18"
@@ -59,6 +60,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.3.0",
     "happy-dom": "^21.0.0",
+    "playwright": "1.64.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "typescript": "^5.6.0"

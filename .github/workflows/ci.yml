@@ -23,3 +23,23 @@ jobs:
       - run: npm test
       - name: Package contents
         run: npm pack --dry-run
+
+  # The element in real engines, headless: webkit on Linux is WebKitGTK (the
+  # webview Tauri and other Linux apps embed), plus chromium.
+  browser:
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [webkit, chromium]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - run: npm run test:browser
+        env:
+          BROWSER: ${{ matrix.browser }}
