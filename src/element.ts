@@ -217,7 +217,8 @@ export class GaiaDeskConsentElement extends Base {
   #refreshPreview(s: Open) {
     if (s.previewBusy) return;
     s.previewBusy = true;
-    const req = { capture: s.view.choices.capture, ...(s.o.parent_window !== undefined && { parent_window: s.o.parent_window }) };
+    const { parent_window, window_id, masks } = s.o;
+    const req = { capture: s.view.choices.capture, ...(parent_window !== undefined && { parent_window }), ...(window_id !== undefined && { window_id }), ...(masks !== undefined && { masks }) };
     this.bridge!.preview!(req).then(
       (f) => this.#gotPreview(s, f && typeof f.png_base64 === 'string' ? f : null),
       (e) => {

@@ -14,9 +14,16 @@ test('a full §1 object is accepted', () => {
     choices: { offer_guided: true, offer_logs: true, offer_capture: true },
     privacy_url: 'https://acme.example/privacy', terms_url: 'https://acme.example/terms', timeout_seconds: 0, preview: true,
     server: 'https://api.gaiadesk.net', embed_token: 'gdemb_x', app_version: '2.4.1',
+    session_id: 'ss_1', window_id: 42, masks: [{ x: 0, y: 0, w: 10.5, h: 4 }],
   };
   assert.equal(validateOptions(o), o);
   assert.deepEqual(validateOptions(undefined), {});
+});
+
+test('masks are a list of rectangles', () => {
+  refused({ masks: { x: 0 } }, /options.masks must be a list/);
+  refused({ masks: [{ x: 0, y: 0, w: 1 }] }, /options.masks\[0\].h must be a number/);
+  refused({ masks: [{ x: 0, y: 0, w: 1, h: 1, z: 1 }] }, /unknown key "z" in options.masks\[0\]/);
 });
 
 test('unknown keys are refused, at any depth', () => {

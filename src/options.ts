@@ -35,6 +35,15 @@ const logo: Check = (v, p) => {
   try { head = atob(b64.slice(0, 12)); } catch { /* refused below */ }
   if (!/^[A-Za-z0-9+/]*={0,2}$/.test(b64) || head.slice(0, 8) !== '\x89PNG\r\n\x1a\n') bad(p, 'base64 of a PNG', '…');
 };
+const num: Check = (v, p) => { if (typeof v !== 'number' || !Number.isFinite(v)) bad(p, 'a number', v); };
+const rects: Check = (v, p) => {
+  if (!Array.isArray(v)) return bad(p, 'a list of {x, y, w, h}', v);
+  v.forEach((r, i) => {
+    object({ x: num, y: num, w: num, h: num })(r, `${p}[${i}]`);
+    // Every side is required, as the library's serde shape requires it.
+    for (const k of ['x', 'y', 'w', 'h']) if ((r as Record<string, unknown>)[k] === undefined) num(undefined, `${p}[${i}].${k}`);
+  });
+};
 const object = (shape: Record<string, Check>): Check => (v, p) => {
   if (typeof v !== 'object' || v === null || Array.isArray(v)) return bad(p, 'an object', v);
   for (const [k, x] of Object.entries(v)) {
@@ -70,6 +79,10 @@ const OPTIONS = object({
   server: str,
   embed_token: str,
   app_version: str,
+  // The library's (§1): passed through to the bridge.
+  session_id: str,
+  window_id: int(0, Number.MAX_SAFE_INTEGER),
+  masks: rects,
 });
 
 /** Throws `ConsentError('bad_config')` on anything the library would refuse. */

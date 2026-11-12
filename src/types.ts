@@ -46,7 +46,14 @@ export interface ConsentOptions {
   server?: string;
   embed_token?: string;
   app_version?: string;
+  /** The support session (`ss_…`); the native dialog needs it to post the receipt and show who is waiting. */
+  session_id?: string;
+  /** As `start`: what the preview captures and blacks out. */
+  window_id?: number;
+  masks?: Rect[];
 }
+
+export interface Rect { x: number; y: number; w: number; h: number }
 
 export interface Choices {
   guided: boolean;
@@ -96,6 +103,8 @@ export interface RecordConsentInput {
 export interface PreviewRequest {
   capture: Capture;
   parent_window?: number;
+  window_id?: number;
+  masks?: Rect[];
 }
 
 export interface PreviewFrame {

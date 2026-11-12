@@ -161,7 +161,7 @@ test('the preview refreshes every second, shows hidden fields, and goes away on 
         return { png_base64: PNG, width: 480, height: 300, masked_count: n };
       },
     }));
-    const done = el.open({ company: 'Acme', masked: true, parent_window: 7 });
+    const done = el.open({ company: 'Acme', masked: true, parent_window: 7, window_id: 9, masks: [{ x: 1, y: 2, w: 3, h: 4 }] });
     await settle();
     assert.equal(visible(el).preview_hidden, 'Fields hidden: 1');
     assert.equal($<HTMLImageElement>(el, '.preview img').src, `data:image/png;base64,${PNG}`);
@@ -175,7 +175,7 @@ test('the preview refreshes every second, shows hidden fields, and goes away on 
     mock.timers.tick(5000);
     await settle();
     assert.equal(asked.length, 3, 'no more previews after capture_unavailable');
-    assert.deepEqual(asked[0], { capture: 'window', parent_window: 7 });
+    assert.deepEqual(asked[0], { capture: 'window', parent_window: 7, window_id: 9, masks: [{ x: 1, y: 2, w: 3, h: 4 }] });
     $(el, '.accept').click();
     await done;
     el.remove();
