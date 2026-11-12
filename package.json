@@ -41,7 +41,7 @@
     "gen": "node scripts/gen-locales.mjs",
     "build": "npm run gen && tsc -p tsconfig.json",
     "build:test": "tsc -p tsconfig.test.json",
-    "typecheck": "npm run gen && tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
+    "typecheck": "npm run build && tsc -p tsconfig.test.json --noEmit",
     "clean": "node -e \"for (const d of ['dist', 'dist-test']) require('node:fs').rmSync(d, { recursive: true, force: true })\"",
     "test": "npm run clean && npm run build && npm run build:test && node --test --test-timeout=20000 dist-test/locales.test.js dist-test/options.test.js dist-test/wording.test.js dist-test/element.test.js dist-test/web-bridge.test.js dist-test/react.test.js dist-test/ssr.test.js",
     "prepack": "npm run clean && npm run build",
