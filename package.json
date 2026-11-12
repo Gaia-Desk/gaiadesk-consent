@@ -1,6 +1,6 @@
 {
   "name": "@gaiadesk/consent",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "GaiaDesk's consent step, in your app's own webview: a themed, localized, accessible <gaiadesk-consent> element (and a React wrapper) that shows what support will see, offers per-session choices and records a consent receipt.",
   "license": "MIT",
   "author": "GaiaDesk <noreply@gaiadesk.net>",

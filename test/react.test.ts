@@ -28,7 +28,7 @@ test('<GaiaDeskConsent>: open shows it, the callbacks fire, open=false takes it 
   assert.equal(el.isOpen, true);
   await act(async () => (el.shadowRoot!.querySelector('.accept') as HTMLElement).click());
   assert.deepEqual(log, [
-    'shown {"locale":"en","wording_version":"gaiadesk-consent-0.1.0-en"}',
+    'shown {"locale":"en","wording_version":"gaiadesk-consent-0.1.1-en"}',
     'accepted {"choices":{"guided":false,"share_logs":false,"capture":"window"}}',
     'decision accepted',
   ]);
@@ -45,7 +45,7 @@ test('<GaiaDeskConsent>: decline and timeout reach the callbacks with the bridge
   const receipt = (decision: Input['decision']): import('../dist/index.js').ConsentReceipt => ({
     id: 'cr_0000000000000000000000test', decision, at: '2026-11-12T16:04:05.123Z', surface: 'embedded', locale: 'en',
     wording_version: 'v1', wording_sha256: '0'.repeat(64), choices: { guided: false, share_logs: false, capture: 'window' },
-    os_user: null, os: 'linux', app_name: null, app_version: null, sdk: 'gaiadesk-consent/0.1.0',
+    os_user: null, os: 'linux', app_name: null, app_version: null, sdk: 'gaiadesk-consent/0.1.1',
   });
   const bridge = { recordConsent: async (i: Input) => ({ decision: i.decision, choices: i.choices, receipt: receipt(i.decision) }) };
   const host = document.createElement('div');

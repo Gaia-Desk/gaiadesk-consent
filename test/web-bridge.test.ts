@@ -36,7 +36,7 @@ test('recordConsent: builds an "embedded" receipt and POSTs it', async () => {
   assert.deepEqual({ ...r, id: '', at: '' }, {
     id: '', at: '', decision: 'accepted', surface: 'embedded', locale: 'en', wording_version: 'acme-1',
     wording_sha256: await wordingSha256(wording), choices, os_user: null, os: r.os, app_name: 'Horus', app_version: '2.4.1',
-    sdk: 'gaiadesk-consent/0.1.0',
+    sdk: 'gaiadesk-consent/0.1.1',
   });
   assert.equal(calls[0].url, `https://api.gaiadesk.net/v1/support/sessions/${SID}/consent`);
   assert.equal(calls[0].init.method, 'POST');
